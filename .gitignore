@@ -1,0 +1,91 @@
+# ===========================================
+# Git Ignore Rules - ApexScreen AI
+# ===========================================
+
+# Environment & Secrets
+.env
+.env.*
+.env.local
+!.env.example
+
+# Python Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Python Bytecode & Build Caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+develop-eggs/
+eggs/
+parts/
+var/
+sdist/
+wheels/
+pip-wheel-metadata/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+
+# Node & Frontend Build
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/package-lock.json.tmp
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Databases & Runtime State
+data/*.db
+data/*.db-journal
+data/*.db-wal
+data/*.db-shm
+*.sqlite
+*.sqlite3
+chroma_db/
+!data/sample_resume.pdf
+
+# Uploads & Temporary Files
+uploads/*
+!uploads/.gitkeep
+
+# Logs & Runtime Dumps
+*.log
+logs/
+.system_generated/
+brain_logs/
+.agents/
+
+# Operating System & IDE Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
