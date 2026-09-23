@@ -1,242 +1,394 @@
-# ApexScreen AI — Role-Based Technical Interview & Screening Platform
+# 🎯 ApexScreen AI
 
-> A production-grade, full-stack, RAG-grounded technical screening platform powered by **Google Gemini** (`gemini-3.6-flash`). Upload a candidate's resume, choose a technical role track, and conduct an adaptive, grounded, real-time interview complete with **granular resume-to-question provenance**, interactive **Recharts analytics**, question categorization, retry capabilities, anytime early termination, and multi-dimensional answer rubric evaluation.
+**An AI-powered interview platform:** upload a resume, configure an interview, and conduct structured AI-driven interviews with resume-aware question generation, persistent interview sessions, and performance insights.
 
----
+![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115.9-009688?logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-Vite-61DAFB?logo=react&logoColor=black)
+![Google Gemini](https://img.shields.io/badge/Gemini-3.6%20Flash-8E75B2?logo=googlegemini&logoColor=white)
+![ChromaDB](https://img.shields.io/badge/ChromaDB-1.0.7-FF6B35)
+![SQLite](https://img.shields.io/badge/SQLite-SQLAlchemy-003B57?logo=sqlite&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Supported-2496ED?logo=docker&logoColor=white)
+![Tests](https://img.shields.io/badge/Tests-36%20Passed-success)
 
-## Table of Contents
-
-1. [Platform Overview](#1-platform-overview)
-2. [UI Architecture & SaaS Design System](#2-ui-architecture--saas-design-system)
-3. [Real Resume Traceability & Question Provenance](#3-real-resume-traceability--question-provenance)
-4. [Curriculum & Resume Coverage Matrix](#4-curriculum--resume-coverage-matrix)
-5. [Interactive Analytics Layer (Recharts)](#5-interactive-analytics-layer-recharts)
-6. [Tech Stack](#6-tech-stack)
-7. [Quickstart & Local Setup](#7-quickstart--local-setup)
-8. [Environment Variables & Configuration](#8-environment-variables--configuration)
-9. [Retry & Early-Termination Workflows](#9-retry--early-termination-workflows)
-10. [RAG Retrieval Pipeline](#10-rag-retrieval-pipeline)
-11. [Dynamic Scoring & Evaluation Rubric](#11-dynamic-scoring--evaluation-rubric)
-12. [API Reference](#12-api-reference)
-13. [Testing & Verification](#13-testing--verification)
+**Jump to:** [Features](#-features) · [Architecture](#-architecture) · [Tech Stack](#-tech-stack) · [API](#-api) · [Setup](#-setup) · [Docker](#-docker) · [Testing](#-testing) · [Limitations](#-limitations)
 
 ---
 
-## 1. Platform Overview
+## ✨ Features
 
-Traditional technical screening systems rely on static, memorized question banks and rigid regex keyword matchers. **ApexScreen AI** delivers an **adaptive, grounded technical interview experience** orchestrated dynamically across four data sources:
-
-1. **Candidate Resume Context & Signal Extraction**: Candidate skills, frameworks, tools, and real-world project portfolios extracted from uploaded PDFs via `PyMuPDF` and structured LLM parsing.
-2. **Real Resume Traceability & Provenance**: Every generated question is explicitly anchored to a specific item from the candidate's resume (e.g. `Resume → Projects → Fake News Detection System` or `Resume → Skills → PyTorch, NLP`).
-3. **Role Curriculum & Track Progression**: Three specialized engineering roles (`AI/ML Engineer`, `Backend Engineer`, and `Data Scientist`) with progressive difficulty ladders and dynamic stage transitions.
-4. **Curated Knowledge Base RAG**: Semantic vector retrieval powered by `sentence-transformers/all-MiniLM-L6-v2` embeddings and persistent **ChromaDB** collections.
-5. **Adaptive Response History & Dynamic Difficulty Calibration**: Rolling performance evaluation that adjusts question difficulty and ensures topic diversity across rounds.
+- **Resume-aware interviewing:** Upload a candidate resume and use extracted information as interview context.
+- **AI-generated questions:** Generate interview questions using Google Gemini.
+- **Structured interview sessions:** Create and manage interview sessions with persistent state.
+- **Resume parsing:** Process uploaded PDF resumes and extract relevant candidate information.
+- **Semantic retrieval:** Use Sentence Transformers embeddings with ChromaDB for vector-based retrieval.
+- **Gemini integration:** Support for Google's Gemini LLM through the `google-genai` SDK.
+- **Mock/Demo provider:** Run and test the application without a live Gemini API key.
+- **Persistent application data:** Store interview and application state using SQLAlchemy and SQLite.
+- **REST API:** FastAPI-based backend with OpenAPI/Swagger documentation.
+- **Modern frontend:** React + Vite interface for interacting with the interview platform.
+- **Docker support:** Containerized backend setup using Docker and Docker Compose.
+- **Health monitoring:** Dedicated health endpoints expose application, database, vector database, and LLM availability.
 
 ---
 
-## 2. UI Architecture & SaaS Design System
+## 🧠 How It Works
 
-The platform features a modern, human-designed SaaS interface:
-
-```
-┌───────────────────────────┬────────────────────────────────────────────────────────────────────────────┐
-│ ✦ ApexScreen AI           │ Breadcrumbs: Screening Portal / AI/ML Track / Sajal Singh  [Gemini 3.6]   │
-│   v2.5 Production         ├────────────────────────────────────────────────────────────────────────────┤
-├───────────────────────────┤                                                                            │
-│ 📊 Dashboard & Setup      │  ┌──────────────────────────────────────────────────────────────────────┐  │
-│ 🎙️ Live Interview (LIVE)   │  │ 🚀 PROJECT-BASED QUESTION                                            │  │
-│ 👤 Candidate Profile      │  │ Resume → Projects → Fake News & Sentiment Detection System          │  │
-│ 🎯 Resume Coverage        │  │ Signals: PyTorch • TF-IDF • NLTK • BERT | Calibration: Intermediate   │  │
-│ 📈 Analytics & Radar      │  └──────────────────────────────────────────────────────────────────────┘  │
-│ 📋 Assessment Report      │                                                                            │
-│                           │  In your Sentiment Detection system, explain how you approached loss       │
-│ ───────────────────────── │  function optimization, handled class imbalance, and validated data drift. │
-│ ⚙️ LLM: Gemini 3.6 Flash  │                                                                            │
-│ 🗄️ ChromaDB: 3 Collections│  [ Candidate Answer Editor ............................................. ] │
-│                           │  [ 🔄 Retry Question ]              [ Submit Answer for Evaluation → ]     │
-└───────────────────────────┴────────────────────────────────────────────────────────────────────────────┘
+```text
+Resume Upload
+      ↓
+PDF Resume Parsing
+      ↓
+Candidate Information
+      ↓
+Interview Configuration
+      ↓
+Knowledge / Context Retrieval
+      ↓
+Gemini AI
+      ↓
+Interview Questions
+      ↓
+Candidate Responses
+      ↓
+Interview Session & Analytics
 ```
 
----
-
-## 3. Real Resume Traceability & Question Provenance
-
-Every generated question provides explicit provenance so interviewers and candidates immediately understand why the question was asked:
-
-```
-┌────────────────────────────────────────────────────────┐
-│ 🚀 PROJECT-BASED QUESTION                              │
-│                                                        │
-│ Resume → Projects → Fake News & Sentiment Detection    │
-│ Skills Grounded: Python • PyTorch • TF-IDF • NLTK      │
-│ Target Topic: Loss Function Optimization               │
-│ Calibration: Intermediate (Adaptive Level 2)           │
-│                                                        │
-│ Question: How did you evaluate and optimize loss ... ? │
-└────────────────────────────────────────────────────────┘
-```
-
-### Provenance Classification Taxonomy
-
-| Source Type | Category Badge | Provenance Breadcrumb Example |
-|---|---|---|
-| `resume_project` | 🚀 **Projects** | `Resume → Projects → Fake News & Sentiment Detection System` |
-| `resume_skill` | 🛠️ **Skills** | `Resume → Technical Skills → PyTorch, FastAPI, Redis` |
-| `resume_education` | 🎓 **Education** | `Resume → Education → Bachelor of Computer Applications` |
-| `resume_experience`| 💼 **Work Experience**| `Resume → Production Experience → System Scaling & CI/CD` |
-| `resume_certification` | 📜 **Certifications** | `Resume → Certifications → AWS Solutions Architect` |
-| `general_rag` | 🌐 **General Technical**| `General Technical → ChromaDB RAG: backend_engineering` |
-| `performance_followup` | 🔍 **Follow-up Probe** | `Interview Calibration → Follow-up on Previous Response` |
+The application can also operate in **Mock/Demo Provider** mode when a Gemini API key is not configured, allowing the application workflow to be tested without a live LLM connection.
 
 ---
 
-## 4. Curriculum & Resume Coverage Matrix
+## 🏗️ Architecture
 
-The platform tracks and visualizes coverage across 8 core assessment categories:
+```mermaid
+flowchart LR
+    U[React + Vite Frontend] -->|REST API| API[FastAPI Backend]
 
-- 🎓 **Introduction & Foundation**: Educational background and foundational engineering principles.
-- 🚀 **Portfolio Projects**: Architectural dissection of candidate's real resume projects.
-- 🛠️ **Core Skills & Stack**: Deep testing of languages, frameworks, and database technologies.
-- 💼 **Work Experience**: Production systems, telemetry, debugging, and scaling under load.
-- 📜 **Certifications & Standards**: Industry best practices, cloud architectures, and compliance.
-- 💡 **Technical Concepts**: Mathematical and algorithmic depth grounded in ChromaDB vector store.
-- 🌐 **System Design & APIs**: Distributed systems, database indexing, and API lifecycle.
-- 🔍 **Follow-up Calibration**: Adaptive probing on trade-offs and edge cases.
+    API --> RP[Resume Parser]
+    API --> IE[Interview Engine]
+    API --> DB[(SQLite / SQLAlchemy)]
+
+    IE --> LLM[Google Gemini 3.6 Flash]
+    IE --> RET[Retrieval Layer]
+
+    RET --> EMB[Sentence Transformers]
+    EMB --> VDB[(ChromaDB)]
+
+    API --> H[Health Monitoring]
+```
+
+### Architecture Overview
+
+- **React + Vite** provides the user-facing interface.
+- **FastAPI** exposes the backend REST API.
+- **Resume Parser** processes uploaded PDF resumes.
+- **Interview Engine** manages interview sessions and AI-driven question generation.
+- **Google Gemini** provides the LLM layer when configured.
+- **Sentence Transformers** generate semantic embeddings.
+- **ChromaDB** provides vector storage and retrieval.
+- **SQLAlchemy + SQLite** handle persistent application data.
+- **Docker** provides containerized deployment support.
 
 ---
 
-## 5. Interactive Analytics Layer (Recharts)
+## 🛠️ Tech Stack
 
-The Analytics view provides rich visualizations bound to live interview data:
+<details>
+<summary><b>Backend</b></summary>
 
-- **Competency Radar**: 4-factor scoring across Technical Accuracy, Completeness, Reasoning Depth, and Communication.
-- **Score Progression Area Chart**: Rolling performance trajectory across questions ($Q_1 \to Q_n$).
-- **Topic-wise Performance Bar Chart**: Granular score breakdowns across all tested technical domains.
-- **Difficulty Calibration Chart**: Performance comparative analysis across Beginner, Intermediate, and Advanced stages.
-- **Resume Category Distribution**: Visual breakdown of covered vs. pending curriculum domains.
+| Area | Technology |
+|---|---|
+| Language | Python |
+| API Framework | FastAPI |
+| ASGI Server | Uvicorn |
+| Validation | Pydantic |
+| ORM | SQLAlchemy |
+| Database | SQLite |
+| PDF Processing | PyMuPDF |
+| Testing | Pytest |
+| HTTP Client | HTTPX |
 
----
+</details>
 
-## 6. Tech Stack
+<details>
+<summary><b>AI / ML</b></summary>
 
-| Layer | Technology | Purpose |
-|---|---|---|
-| **Backend Framework** | FastAPI 0.115+ (Python 3.11+) | High-performance async REST API |
-| **Frontend Framework** | React 18 + Vite 5 | Reactive component architecture and fast HMR |
-| **Data Visualizations**| Recharts 2.15+ | Interactive SVG analytics, radar charts, area progression |
-| **Icons & UI System**  | Lucide React + Design Tokens | Cohesive, elevated dark-space product aesthetics |
-| **LLM Provider** | Google Gemini (`gemini-3.6-flash`) | Question generation, rubric scoring, summary synthesis |
-| **Vector Database** | ChromaDB 0.6+ | Local persistent embedding storage |
-| **Embedding Model** | `all-MiniLM-L6-v2` | Fast semantic vector search (384 dimensions) |
-| **Relational Database** | SQLite + SQLAlchemy 2.0 | Session, question provenance, answers, and reports |
-| **PDF Extraction** | PyMuPDF (`fitz`) | Robust resume parsing across layouts and columns |
-| **Testing** | Pytest + Httpx + TestClient | 36 unit, integration, and E2E verification tests |
+| Area | Technology |
+|---|---|
+| LLM | Google Gemini 3.6 Flash |
+| Gemini SDK | `google-genai` |
+| Embeddings | Sentence Transformers |
+| Embedding Model | `all-MiniLM-L6-v2` |
+| Vector Database | ChromaDB |
+| Retrieval | Semantic / Vector Retrieval |
 
----
+</details>
 
-## 7. Quickstart & Local Setup
+<details>
+<summary><b>Frontend & Infrastructure</b></summary>
 
-### System Prerequisites
-- **Python**: 3.11 – 3.13 recommended (Python 3.14+ lacks prebuilt Windows wheels for `chroma-hnswlib` and requires C++ Build Tools).
-- **Node.js**: 18+ (Node 20+ recommended)
+| Area | Technology |
+|---|---|
+| Frontend | React |
+| Build Tool | Vite |
+| Containerization | Docker |
+| Orchestration | Docker Compose |
+| API Documentation | OpenAPI / Swagger UI |
 
-### 1. Backend Setup
-```bash
-# Create and activate virtual environment
-python -m venv .venv
-
-# On Linux/macOS:
-source .venv/bin/activate
-# On Windows (PowerShell):
-.venv\Scripts\Activate.ps1
-# On Windows (cmd):
-.venv\Scripts\activate.bat
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-### 2. Configure Environment (.env)
-```bash
-cp .env.example .env
-# Edit .env and insert your GEMINI_API_KEY (or leave blank for deterministic Mock/Demo mode)
-```
-
-### 3. Initialize Vectors & Knowledge Base
-```bash
-python scripts/ingest_knowledge.py
-python scripts/verify_rag.py
-```
-
-### 4. Frontend Setup & Build
-```bash
-cd frontend
-npm install
-npm run build
-cd ..
-```
-
-### 5. Launch Servers
-In terminal 1 (Backend):
-```bash
-uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-In terminal 2 (Frontend):
-```bash
-cd frontend && npm run dev
-```
-
-Open `http://localhost:5173` in your browser.
+</details>
 
 ---
 
-## 8. Retry & Early-Termination Workflows
+## 📡 API
 
-### 🔄 Retry Question Flow
-1. Candidate submits an answer and receives rubric feedback.
-2. Candidate clicks **"🔄 Retry Question (Refine Response)"**.
-3. Textarea re-opens pre-populated with their text and an active **"Attempt #2"** badge.
-4. Calling `POST /api/interviews/{session_id}/retry` resets evaluation state while preserving the same question ID and question index.
-5. Re-submitting calls `POST /api/interviews/{session_id}/answers` with `is_retry=True`, updating the database answer and score in-place.
+The backend exposes a REST API with interactive documentation through Swagger UI.
 
-### ⏹️ End Interview Early Flow
-1. Interviewer/Candidate clicks **"⏹ End Interview Early"** in top bar.
-2. A confirmation modal displays how many questions have been answered.
-3. Confirming calls `POST /api/interviews/{session_id}/finish`.
-4. The backend marks the session as completed, sets `is_completed_early=1`, and synthesizes a final report strictly based on answered questions.
-
----
-
-## 9. Dynamic Scoring & Evaluation Rubric
-
-$$\text{Overall Score} = 0.40 \cdot \text{Technical} + 0.35 \cdot \text{Completeness} + 0.15 \cdot \text{Reasoning} + 0.10 \cdot \text{Communication}$$
-
-- **Technical Accuracy (40%)**: Correctness of formulas, algorithms, architectural mechanisms, and technical terminology.
-- **Completeness (35%)**: Coverage of expected concepts defined during question generation.
-- **Reasoning & Depth (15%)**: Discussion of trade-offs, alternative approaches, and edge cases.
-- **Communication Clarity (10%)**: Structured, articulate explanation with appropriate technical precision.
-
----
-
-## 10. API Reference
+### Health
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/health` or `/api/health` | Service health, LLM provider mode, and DB/ChromaDB status |
-| `GET` | `/api/roles` | List available technical roles with topics and required skills |
-| `POST` | `/api/resume/upload` | Upload PDF resume, extract text, and parse candidate skills/projects |
-| `GET` | `/api/resume/{id}` | Retrieve candidate profile by ID |
-| `POST` | `/api/interviews` | Create a new interview session and generate Question 1 with provenance |
-| `GET` | `/api/interviews/{id}` | Get session status and question progression |
-| `GET` | `/api/interviews/{id}/current-question` | Retrieve active question with full provenance and RAG traceability |
-| `POST` | `/api/interviews/{id}/answers` | Submit response for rubric evaluation (`is_retry` supported) |
-| `POST` | `/api/interviews/{id}/retry` | Reset active question for answer refinement |
-| `POST` | `/api/interviews/{id}/finish` | End interview anytime and synthesize report |
-| `POST` | `/api/interviews/{id}/next-question` | Advance to the next adaptive question with provenance |
-| `GET` | `/api/interviews/{id}/results` | Fetch complete scorecard, provenance tags, coverage matrix, and analytics |
+| `GET` | `/health` | Application health status |
+| `GET` | `/api/health` | API-prefixed health status |
 
-### Verified `/health` Endpoint Output
+The health response reports information such as:
+
+- Application status
+- LLM availability
+- Active LLM mode
+- Database connectivity
+- Vector database connectivity
+- Embedding model
+- Knowledge-base indexing status
+
+### Documents / Resume
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/v1/documents` | Upload and process a document |
+| `GET` | `/api/v1/documents/{document_id}` | Retrieve document status/details |
+
+### Interview
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/v1/interviews` | Create an interview session |
+| `GET` | `/api/v1/interviews/{interview_id}` | Retrieve interview information |
+| `GET` | `/api/v1/interviews/{interview_id}/current-question` | Retrieve the current interview question |
+
+> The complete API reference is available through Swagger UI at `/docs`.
+
+### Interactive API Documentation
+
+After starting the backend:
+
+```text
+http://localhost:8000/docs
+```
+
+OpenAPI schema:
+
+```text
+http://localhost:8000/openapi.json
+```
+
+---
+
+## 🚀 Setup
+
+### Requirements
+
+- Python **3.11–3.13**
+- Node.js **18+**
+- Git
+- Optional: Google Gemini API key
+- Optional: Docker Desktop
+
+> Python 3.14+ may require building `chroma-hnswlib` locally on Windows if a compatible prebuilt wheel is unavailable.
+
+### Clone the Repository
+
+```bash
+git clone https://github.com/Sajal-10903/apexscreen-ai.git
+cd apexscreen-ai
+```
+
+### Backend Setup
+
+Create a virtual environment:
+
+```bash
+python -m venv .venv
+```
+
+#### Windows PowerShell
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+#### macOS / Linux
+
+```bash
+source .venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+### Environment Configuration
+
+Create a local `.env` file:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Or on macOS/Linux:
+
+```bash
+cp .env.example .env
+```
+
+Configure your Gemini API key if live Gemini functionality is required:
+
+```env
+GEMINI_API_KEY=your_api_key_here
+```
+
+The supported Gemini model is:
+
+```env
+GEMINI_MODEL=gemini-3.6-flash
+```
+
+> Never commit `.env` or API keys to the repository.
+
+### Start the Backend
+
+```bash
+uvicorn backend.app.main:app --reload
+```
+
+Backend:
+
+```text
+http://localhost:8000
+```
+
+Swagger UI:
+
+```text
+http://localhost:8000/docs
+```
+
+---
+
+## 🖥️ Frontend
+
+Open a second terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Vite will provide the frontend URL, typically:
+
+```text
+http://localhost:5173
+```
+
+The frontend communicates with the FastAPI backend through the configured API endpoint.
+
+---
+
+## 🐳 Docker
+
+Docker and Docker Compose configuration is included.
+
+Build and start:
+
+```bash
+docker compose up --build
+```
+
+Run in detached mode:
+
+```bash
+docker compose up -d --build
+```
+
+Stop the application:
+
+```bash
+docker compose down
+```
+
+The Docker setup supports:
+
+```env
+GEMINI_API_KEY
+GEMINI_MODEL
+```
+
+Default model:
+
+```text
+gemini-3.6-flash
+```
+
+---
+
+## 🧪 Testing
+
+The project includes an automated backend test suite.
+
+Run:
+
+```bash
+pytest backend/tests/ -q
+```
+
+### Verified Test Result
+
+```text
+36 passed
+6 warnings
+```
+
+The backend test suite was successfully executed after resolving the Pydantic dependency compatibility issue.
+
+The dependency was updated from:
+
+```text
+pydantic==2.12.4
+```
+
+to:
+
+```text
+pydantic==2.12.5
+```
+
+---
+
+## ❤️ Health Check
+
+ApexScreen AI exposes two health endpoints:
+
+```text
+GET /health
+GET /api/health
+```
+
+Both endpoints were verified successfully.
+
+Example response:
+
 ```json
 {
   "status": "healthy",
@@ -248,25 +400,119 @@ $$\text{Overall Score} = 0.40 \cdot \text{Technical} + 0.35 \cdot \text{Complete
   "knowledge_base_indexed": false
 }
 ```
-*(When `GEMINI_API_KEY` is provided, `llm_available` is `true` and `llm_mode` reports `Gemini (gemini-3.6-flash)`).*
+
+When a valid Gemini API key is configured, the application can use the Gemini provider instead of the Mock/Demo provider.
 
 ---
 
-## 11. Testing & Verification
+## 📁 Project Structure
 
-```bash
-# Run all unit and integration tests (36 tests)
-pytest backend/tests/ -q
+```text
+apexscreen-ai/
+│
+├── backend/
+│   ├── app/
+│   └── tests/
+│
+├── frontend/
+│
+├── data/
+│   └── sample_resume.pdf
+│
+├── knowledge_base/
+│
+├── scripts/
+│
+├── uploads/
+│
+├── chroma_db/
+│
+├── .env.example
+├── .gitignore
+├── Dockerfile
+├── docker-compose.yml
+├── docker-entrypoint.sh
+├── PROJECT_HANDOVER.md
+├── README.md
+└── requirements.txt
 ```
-**Verified Result**: `36 passed, 6 warnings in 1.95s` (100% test pass rate).
 
-```bash
-# Test RAG vector search across all ChromaDB collections
-python scripts/verify_rag.py
+Runtime-generated data such as local databases, uploaded files, ChromaDB data, caches, virtual environments, and secrets are excluded from version control.
 
-# Test live end-to-end flow with Gemini / adaptive engine / provenance
-python scripts/test_live_e2e.py
+---
 
-# Build frontend production bundle
-cd frontend && npm run build
+## 🔐 Configuration & Security
+
+Secrets are kept outside the repository.
+
+Example:
+
+```env
+GEMINI_API_KEY=your_api_key_here
 ```
+
+The following should never be committed:
+
+```text
+.env
+API keys
+Credentials
+Uploaded user documents
+Local databases
+Virtual environments
+Runtime caches
+```
+
+The repository provides `.env.example` as a configuration template.
+
+---
+
+## ⚠️ Limitations
+
+- AI-generated interview questions depend on the configured LLM provider and available context.
+- Live Gemini functionality requires a valid Gemini API key.
+- The application can run in Mock/Demo Provider mode without a Gemini API key.
+- Resume parsing quality depends on the structure and readability of the uploaded PDF.
+- Semantic retrieval quality depends on the embedding model and indexed knowledge base.
+- Local development uses SQLite.
+- ChromaDB data is treated as runtime/local data.
+- Uploaded resumes are treated as runtime/local files.
+- The current automated tests primarily validate backend functionality and do not represent complete browser-based end-to-end testing.
+- Production deployment would require appropriate security, persistent storage, monitoring, and infrastructure configuration.
+
+---
+
+## 📌 Project Status
+
+**Active Development / Portfolio Project**
+
+Current verified status:
+
+- Backend dependencies installed successfully
+- `36/36` backend tests passing
+- FastAPI application starts successfully
+- Graphical React frontend runs successfully
+- Swagger UI accessible
+- `/health` endpoint verified
+- `/api/health` endpoint verified
+- Gemini `3.6 Flash` configured
+- ChromaDB integration available
+- Docker configuration included
+
+---
+
+## 👨‍💻 Author
+
+**Sajal Raj**
+
+- GitHub: [Sajal-10903](https://github.com/Sajal-10903)
+- Portfolio: [sajalraj-portfolio.vercel.app](https://sajalraj-portfolio.vercel.app)
+- LinkedIn: [Sajal Raj](https://www.linkedin.com/in/sajal-raj-456b31252/)
+
+---
+
+## ⭐ Support
+
+If you find this project useful or interesting, consider giving the repository a star.
+
+**Repository:** [github.com/Sajal-10903/apexscreen-ai](https://github.com/Sajal-10903/apexscreen-ai)
