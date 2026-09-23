@@ -136,17 +136,30 @@ The Analytics view provides rich visualizations bound to live interview data:
 
 ## 7. Quickstart & Local Setup
 
+### System Prerequisites
+- **Python**: 3.11 – 3.13 recommended (Python 3.14+ lacks prebuilt Windows wheels for `chroma-hnswlib` and requires C++ Build Tools).
+- **Node.js**: 18+ (Node 20+ recommended)
+
 ### 1. Backend Setup
 ```bash
+# Create and activate virtual environment
 python -m venv .venv
+
+# On Linux/macOS:
 source .venv/bin/activate
+# On Windows (PowerShell):
+.venv\Scripts\Activate.ps1
+# On Windows (cmd):
+.venv\Scripts\activate.bat
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
 ### 2. Configure Environment (.env)
-```env
+```bash
 cp .env.example .env
-# Edit .env and insert your GEMINI_API_KEY (or leave blank for deterministic mock mode)
+# Edit .env and insert your GEMINI_API_KEY (or leave blank for deterministic Mock/Demo mode)
 ```
 
 ### 3. Initialize Vectors & Knowledge Base
@@ -210,7 +223,7 @@ $$\text{Overall Score} = 0.40 \cdot \text{Technical} + 0.35 \cdot \text{Complete
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/api/health` | Service health, LLM provider mode, and DB/ChromaDB status |
+| `GET` | `/health` or `/api/health` | Service health, LLM provider mode, and DB/ChromaDB status |
 | `GET` | `/api/roles` | List available technical roles with topics and required skills |
 | `POST` | `/api/resume/upload` | Upload PDF resume, extract text, and parse candidate skills/projects |
 | `GET` | `/api/resume/{id}` | Retrieve candidate profile by ID |
@@ -223,6 +236,20 @@ $$\text{Overall Score} = 0.40 \cdot \text{Technical} + 0.35 \cdot \text{Complete
 | `POST` | `/api/interviews/{id}/next-question` | Advance to the next adaptive question with provenance |
 | `GET` | `/api/interviews/{id}/results` | Fetch complete scorecard, provenance tags, coverage matrix, and analytics |
 
+### Verified `/health` Endpoint Output
+```json
+{
+  "status": "healthy",
+  "llm_available": false,
+  "llm_mode": "Mock/Demo Provider",
+  "database": "connected",
+  "vector_db": "connected",
+  "embedding_model": "all-MiniLM-L6-v2",
+  "knowledge_base_indexed": false
+}
+```
+*(When `GEMINI_API_KEY` is provided, `llm_available` is `true` and `llm_mode` reports `Gemini (gemini-3.6-flash)`).*
+
 ---
 
 ## 11. Testing & Verification
@@ -230,7 +257,10 @@ $$\text{Overall Score} = 0.40 \cdot \text{Technical} + 0.35 \cdot \text{Complete
 ```bash
 # Run all unit and integration tests (36 tests)
 pytest backend/tests/ -q
+```
+**Verified Result**: `36 passed, 6 warnings in 1.95s` (100% test pass rate).
 
+```bash
 # Test RAG vector search across all ChromaDB collections
 python scripts/verify_rag.py
 

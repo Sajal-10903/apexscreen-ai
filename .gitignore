@@ -89,3 +89,8 @@ Thumbs.db
 *~
 *.sublime-project
 *.sublime-workspace
+
+data/interview/*.db
+uploads/*
+!uploads/.gitkeep
+chroma_db/*

@@ -36,11 +36,14 @@ async def lifespan(app: FastAPI):
     create_tables(engine)
 
     # Warm up embedding model in background thread or lazily
-    try:
-        from backend.app.services.embedding_service import generate_embedding
-        generate_embedding("warmup")
-    except Exception as e:
-        logger.warning(f"Embedding model warmup warning: {e}")
+    import threading
+    def _warmup():
+        try:
+            from backend.app.services.embedding_service import generate_embedding
+            generate_embedding("warmup")
+        except Exception as e:
+            logger.warning(f"Embedding model warmup warning: {e}")
+    threading.Thread(target=_warmup, daemon=True).start()
 
     logger.info("="*60)
     logger.info("AI Interview System started")
@@ -87,6 +90,7 @@ app.add_middleware(
 
 # Register routers
 app.include_router(health.router, prefix="/api")
+app.include_router(health.router)
 app.include_router(resume.router, prefix="/api")
 app.include_router(interview.router, prefix="/api")
 app.include_router(roles.router, prefix="/api")
